@@ -38,7 +38,7 @@ int main (int argc, char *argv[]) {
     int aux , enableaux = 0; //Variavel enableaux serve pra tirar as duplicatas na 2° lista
     int qntdLista1 = 0, qntdLista2 = 0; //Essas variaveis servem pra contar quantos elementos tem na lista,
                                         //podia ser feito também dentro da própria struct da lista.
-    char *caracVetor = (char *) malloc(sizeof(char)*2147483648);
+    char *caracVetor = (char *)NULL;
     char caracter;
     celula *caux = newCell(); // Celula auxiliar
     celula *h1 = newCell(); //1º Lista
