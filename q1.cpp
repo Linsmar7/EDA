@@ -38,7 +38,7 @@ int main (int argc, char *argv[]) {
     int aux , enableaux = 0; //Variavel enableaux serve pra tirar as duplicatas na 2° lista
     int qntdLista1 = 0, qntdLista2 = 0; //Essas variaveis servem pra contar quantos elementos tem na lista,
                                         //podia ser feito também dentro da própria struct da lista.
-    char *caracVetor = (char *) malloc(sizeof(char)*2147483648);
+    char *caracVetor;
     char caracter;
     celula *caux = newCell(); // Celula auxiliar
     celula *h1 = newCell(); //1º Lista
@@ -49,35 +49,40 @@ int main (int argc, char *argv[]) {
     if (in == NULL) cout << "O arquivo não pode ser aberto" << endl;
     //Passando o que tem dentro do arquivo para a 1ª lista
     fscanf (in, "%c", &caracter); //Lendo o caracter '['
-    for (; caracter != ']';) { //O for funciona enquanto caracter for diferente de ]
+    for (; caracter != ']';) { //O loop funciona enquanto caracter for diferente de ]
         fscanf(in, "%c", &caracter);
         if (caracter == ']') break; //Se achar o caracter ] logo de cara, acaba o loop.
+        else if (caracter == ' '); //Se achar espaço, o código abaixo é ignorado e volta pro inicio do loop.
         else {  //Se não:
-            for (int o = 0; caracter != ' '; o++) { //Loop pra pegar números grandes
+            caracVetor = (char *) malloc(sizeof(char)*2147483647); //Alocação de memória pro vetor, não precisa
+                                                                   //ser maior que 2147483647, pelo limite de INT
+            for (int o = 0; caracter != ' '; o++) { //Loop pra pegar char por char e transformar num número só
                 caracVetor[o] = caracter; //Joga o caracter dentro do vetor de caracteres
                 fscanf (in, "%c", &caracter); //Ve quem é o proximo no arquivo
                 if (caracter == ' ' || caracter == ']') { //Se for espaço ou ], acaba
-                    aux = atoi(caracVetor); //Transforma o vetor de caracteres em inteiro
+                    aux = atoi(caracVetor); //Transforma o vetor de caracteres em inteiro e joga em aux
                     break;
                 }
             }
             insert(aux, h1); //Insere na lista 1
             qntdLista1++;
-            free(caracVetor);
+            free(caracVetor); //Libera a memória alocada
         }
     }
 
-    fscanf (in, "%c", &caracter); //Lendo o espaço
+    fscanf (in, "%c", &caracter); //Lendo o espaço entre as 2 listas, como só tem 1 espaço, só precisa de 1, se tivesse
+                                  //um número aleatório de espaços, poderia ser feito 1 loop com condição.
     fscanf (in, "%c", &caracter); //Lendo o caracter '[' da 2° lista
     //Passando o que tem dentro do arquivo para a 2ª lista RETIRANDO AS DUPLICATAS
     for (; caracter != ']' ;) {
         fscanf (in, "%c", &caracter);
-        if (h1->next) { //Se existir elementos na lista 1:
-            if (caracter == ']') break;
+        if (h1->next) { //Se EXISTIR elementos na lista 1:
+            if (caracter == ']') break; //Se achar ] logo de cara, significa que a lista está vazia, então o loop acaba
+            else if (caracter == ' ') continue; //Se achar espaço, volta pro inicio do loop
             else {
-                caux = h1->next;
-                caracVetor = (char *) malloc(sizeof(char)*2147483647);
-                for (int o = 0; caracter != ' '; o++) {
+                caux = h1->next; //Celula auxiliar = primeira celula da lista 1
+                caracVetor = (char *) malloc(sizeof(char)*2147483647); //Alocação de memória
+                for (int o = 0; caracter != ' '; o++) { //Mesmo loop pra passar os números do arquivo pra inteiros no código
                     caracVetor[o] = caracter; 
                     fscanf (in, "%c", &caracter);
                     if (caracter == ' ' || caracter == ']') {
@@ -89,7 +94,7 @@ int main (int argc, char *argv[]) {
             }
             for (int i = 0; i < qntdLista1; i++) { //Loop para tirar as duplicatas na 2° lista
                 if (caux->element == aux) {
-                    enableaux = 0; //Se essa variavel for igual a 0, significa que o número na lista é igual a outro número na lista 1.
+                    enableaux = 0; //Se essa variavel for igual a 0, significa que esse número existe na lista 1.
                     break;
                 }
                 else enableaux = 1;
@@ -102,8 +107,9 @@ int main (int argc, char *argv[]) {
             }
         }
 
-        else { //Se não existir elementos na lista 1:
+        else { //Se NÃO EXISTIR elementos na lista 1:
             if (caracter == ']') break;
+            else if(caracter == ' ') continue;
             else {
                 caracVetor = (char *) malloc(sizeof(char)*2147483647);
                 for (int o = 0; caracter != ' '; o++) {
