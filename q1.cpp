@@ -35,7 +35,7 @@ int main (int argc, char *argv[]) {
     //Declaração
     FILE *in;
     FILE *out;
-    int aux , enableaux = 0; //Variavel enableaux serve pra tirar as duplicatas na 2° lista
+    int aux , enableaux = 0, enablein = 0; //Variavel enableaux serve pra tirar as duplicatas na 2° lista e enablein serve pra duplicatas na mesma lista.
     int qntdLista1 = 0, qntdLista2 = 0; //Essas variaveis servem pra contar quantos elementos tem na lista,
                                         //podia ser feito também dentro da própria struct da lista.
     char *caracVetor;
@@ -52,7 +52,7 @@ int main (int argc, char *argv[]) {
     for (; caracter != ']';) { //O loop funciona enquanto caracter for diferente de ]
         fscanf(in, "%c", &caracter);
         if (caracter == ']') break; //Se achar o caracter ] logo de cara, acaba o loop.
-        else if (caracter == ' '); //Se achar espaço, o código abaixo é ignorado e volta pro inicio do loop.
+        else if (caracter == ' ') continue; //Se achar espaço, o código abaixo é ignorado e volta pro inicio do loop.
         else {  //Se não:
             caracVetor = (char *) malloc(sizeof(char)*2147483647); //Alocação de memória pro vetor, não precisa
                                                                    //ser maior que 2147483647, pelo limite de INT
@@ -64,9 +64,28 @@ int main (int argc, char *argv[]) {
                     break;
                 }
             }
-            insert(aux, h1); //Insere na lista 1
-            qntdLista1++;
-            free(caracVetor); //Libera a memória alocada
+            if (h1->next) {
+                caux = h1->next;
+                for (int i = 0; i < qntdLista1; i++) {
+                    if (aux == caux->element) {
+                        enablein = 0;
+                        break;
+                    }
+                    else enablein = 1;
+                    if (caux->next) caux = caux->next;
+                }
+                if (enablein == 1) {
+                    insert(aux, h1);
+                    qntdLista1++;
+                    enablein = 0;
+                }
+            }
+            else {
+                insert(aux, h1);
+                qntdLista1++;
+                enablein = 0;
+            }
+            free(caracVetor);
         }
     }
 
@@ -76,53 +95,79 @@ int main (int argc, char *argv[]) {
     //Passando o que tem dentro do arquivo para a 2ª lista RETIRANDO AS DUPLICATAS
     for (; caracter != ']' ;) {
         fscanf (in, "%c", &caracter);
-        if (h1->next) { //Se EXISTIR elementos na lista 1:
-            if (caracter == ']') break; //Se achar ] logo de cara, significa que a lista está vazia, então o loop acaba
-            else if (caracter == ' ') continue; //Se achar espaço, volta pro inicio do loop
-            else {
-                caux = h1->next; //Celula auxiliar = primeira celula da lista 1
-                caracVetor = (char *) malloc(sizeof(char)*2147483647); //Alocação de memória
-                for (int o = 0; caracter != ' '; o++) { //Mesmo loop pra passar os números do arquivo pra inteiros no código
-                    caracVetor[o] = caracter; 
-                    fscanf (in, "%c", &caracter);
-                    if (caracter == ' ' || caracter == ']') {
-                        aux = atoi(caracVetor);
-                        break;
-                    }
+        if (caracter == ']') break; //Se achar ] logo de cara, significa que a lista está vazia, então o loop acaba
+        else if (caracter == ' ') continue; //Se achar espaço, volta pro inicio do loop
+        else {
+            caracVetor = (char *) malloc(sizeof(char)*2147483647); //Alocação de memória
+            for (int o = 0; caracter != ' '; o++) { //Mesmo loop pra passar os números do arquivo pra inteiros no código
+                caracVetor[o] = caracter; 
+                fscanf (in, "%c", &caracter);
+                if (caracter == ' ' || caracter == ']') {
+                    aux = atoi(caracVetor);
+                    break;
                 }
-                free(caracVetor);
             }
-            for (int i = 0; i < qntdLista1; i++) { //Loop para tirar as duplicatas na 2° lista
+            free(caracVetor);
+        }
+        if (qntdLista1 > 0) { //Se EXISTIR algo dentro da lista 1, temos que jogar fora os números repetidos
+            caux = h1->next;
+            for (int i = 0; i < qntdLista1; i++) {
                 if (caux->element == aux) {
-                    enableaux = 0; //Se essa variavel for igual a 0, significa que esse número existe na lista 1.
+                    enableaux = 0;
                     break;
                 }
                 else enableaux = 1;
-                caux = caux->next;
+                if (caux->next) caux = caux->next;
             }
-            if (enableaux == 1) { //Se for igual a 1, não tem duplicata, pode inserir na lista 2.
-                insert(aux, h2);
-                enableaux = 0;
-                qntdLista2++;
-            }
-        }
-
-        else { //Se NÃO EXISTIR elementos na lista 1:
-            if (caracter == ']') break;
-            else if(caracter == ' ') continue;
-            else {
-                caracVetor = (char *) malloc(sizeof(char)*2147483647);
-                for (int o = 0; caracter != ' '; o++) {
-                    caracVetor[o] = caracter;
-                    fscanf (in, "%c", &caracter);
-                    if (caracter == ' ' || caracter == ']') {
-                        aux = atoi(caracVetor);
-                        break;
+            if (enableaux == 1) { //Se o número passar e não for repetido com a lista 1, temos que verificar se ele é repetido com algum número dentro da PRÓPRIA lista.
+                if (qntdLista2 > 0) {
+                    caux = h2->next;
+                    for (int i = 0; i < qntdLista2; i++) {
+                        if(caux->element == aux) {
+                            enablein = 0;
+                            break;
+                        }
+                        else enablein = 1;
+                        if (caux->next) caux = caux->next;
                     }
                 }
-                insert(aux, h2); //Insere na lista 2
+                else {
+                    insert(aux, h2);
+                    qntdLista2++;
+                    enablein = 0;
+                    enableaux = 0;
+                }
+                if (enablein == 1) {
+                    insert(aux, h2);
+                    qntdLista2++;
+                    enablein = 0;
+                    enableaux = 0;
+                }
+            }
+        }
+        else { //Se não tiver ngm na lista 1, só devemos nos preocupar com repetições dentro da própria lista.
+            if (qntdLista2 > 0) {
+                caux = h2->next;
+                for (int i = 0; i < qntdLista2; i++) {
+                    if(caux->element == aux) {
+                        enablein = 0;
+                        break;
+                    }
+                    else enablein = 1;
+                    if (caux->next) caux = caux->next;
+                }
+            }
+            else {
+                insert(aux, h2);
                 qntdLista2++;
-                free(caracVetor);
+                enablein = 0;
+                enableaux = 0;
+            }
+            if (enablein == 1) {
+                insert(aux, h2);
+                qntdLista2++;
+                enablein = 0;
+                enableaux = 0;
             }
         }
     }
