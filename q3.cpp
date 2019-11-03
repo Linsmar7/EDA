@@ -23,6 +23,19 @@ void insert (int e, celula *l) {
         l->next = p;
     }
 }
+//Função de remover células da lista
+void del(int e, celula *l){
+    while (l->next && l->next->element != e) {
+        l = l->next;
+    }
+    celula *p = newCell();
+    if (l->next->element == e) {
+        p = l->next;
+        l->next = l->next->next;
+    }
+    free(p);
+}
+
 
 int main (int argc, char *argv[]) {
     //IF caso o usuário não coloque a quantidade correta de argumentos
@@ -35,14 +48,13 @@ int main (int argc, char *argv[]) {
     //Declaração
     FILE *in;
     FILE *out;
-    int aux , enableaux = 0, enablein = 0;
-    int qntdLista1 = 0, qntdLista2 = 0; //Essas variaveis servem pra contar quantos elementos tem na lista,
-                                        //podia ser feito também dentro da própria struct da lista.
+    int aux , enableaux = 0, enablein = 0; //Variavel enableaux serve pra tirar as duplicatas na 2° lista, enablein serve pras duplicatas dentro da própria lista
+    int qntdLista1 = 0; //Essa variavel serve pra contar quantos elementos tem na lista,
+                        //podia ser feito também dentro da própria struct da lista.
     char *caracVetor;
     char caracter;
     celula *caux = newCell(); // Celula auxiliar
-    celula *h1 = newCell(); //1º Lista
-    celula *h2 = newCell(); //2º Lista
+    celula *h1 = newCell(); //Vou usar apenas 1 lista nessa questão
 
     //Abrindo o arquivo de entrada  
     in = fopen(argv[1], "r");
@@ -69,6 +81,7 @@ int main (int argc, char *argv[]) {
                 caux = h1->next;
                 for (int i = 0; i < qntdLista1; i++) {
                     if (caux->element == aux) {
+                        cout << "Já existe bro, deu break" << endl;
                         enablein = 0;
                         break;
                     }
@@ -77,12 +90,14 @@ int main (int argc, char *argv[]) {
                 }
                 if (enablein == 1) {
                     insert(aux, h1); //Insere na lista 1
+                    cout << "Isso foi inserido: " << aux << endl;
                     qntdLista1++;
                     enablein = 0;
                 }
             }
             else {
                 insert(aux, h1);
+                cout << "Isso foi inserido: " << aux << endl;
                 qntdLista1++;
                 enablein = 0;
             }
@@ -93,10 +108,10 @@ int main (int argc, char *argv[]) {
     fscanf (in, "%c", &caracter); //Lendo o espaço entre as 2 listas, como só tem 1 espaço, só precisa de 1, se tivesse
                                   //um número aleatório de espaços, poderia ser feito 1 loop com condição.
     fscanf (in, "%c", &caracter); //Lendo o caracter '[' da 2° lista
-    //Passando o que tem dentro do arquivo para a 2ª lista RETIRANDO AS DUPLICATAS
+    //Passando o que tem dentro do arquivo para a 2ª lista
     for (; caracter != ']' ;) {
         fscanf (in, "%c", &caracter);
-        if (h1->next) { //Se EXISTIR elementos na lista 1:
+        if (qntdLista1 > 0) { //Se EXISTIR elementos na lista 1 (caso não exista, nessa questão especifica não é necessário escrever nada na saida):
             if (caracter == ']') break; //Se achar ] logo de cara, significa que a lista está vazia, então o loop acaba
             else if (caracter == ' ') continue; //Se achar espaço, volta pro inicio do loop
             else {
@@ -112,55 +127,36 @@ int main (int argc, char *argv[]) {
                 free(caracVetor);
             }
             caux = h1->next;
-            if (qntdLista1 > 0) {
-                for (int i = 0; i < qntdLista1; i++) { //Loop para colocar as duplicatas na 2° lista
-                    if (caux->element == aux) {
-                        enableaux = 1; //Se essa variavel for igual a 1, significa que esse número existe na lista 1.
-                        break;
-                    }
-                    else enableaux = 0;
-                    caux = caux->next;
+            for (int i = 0; i < qntdLista1; i++) {
+                if (caux->element == aux) {
+                    enableaux = 0;
+                    break;
                 }
-                if (enableaux == 1) {
-                    /* Checando se já existe o elemento dentro da própria lista */
-                    if (qntdLista2 > 0) {
-                        caux = h2->next;
-                        for (int i = 0; i < qntdLista2; i++) {
-                            if (aux == caux->element) {
-                                enablein = 1;
-                                break;
-                            }
-                            else enablein = 0;
-                            caux = caux->next;
-                        }
-                        if (enablein == 0){
-                            insert(aux, h2);
-                            qntdLista2++;
-                            enableaux = 0;
-                        }
-                    }
-                    else {
-                        insert(aux, h2);
-                        qntdLista2++;
-                        enablein = 0;
-                        enableaux = 0;
-                    }
-                }
+                else enableaux = 1;
+                if (caux->next) caux = caux->next;
+            }
+            if (enableaux == 1) { //Se o número passar e não for repetido com a lista 1, não faz nada.
+                enableaux = 0;
+            }
+            else { //Se o número for repetido com a lista 1, devemos removê-lo da lista.
+                del(aux, h1);
+                qntdLista1--;
             }
         }
     }
     fclose(in); //Fechando o arquivo
+
     //Abrindo arquivo de saida
     out = fopen(argv[2], "w");
     if (!(out = fopen(argv[2], "w"))) cout << "O arquivo não pode ser aberto" << endl;
 
-    //Passando a 2º lista pro arquivo de saída (só as duplicatas entre as 2 listas)
+    //Passando a a lista pro arquivo de saída 
     fprintf(out, "[");
-    if (h2->next) {
-        caux = h2->next;
-        for (int i = 0; i < qntdLista2; i++) {
+    if (h1->next) {
+        caux = h1->next;
+        for (int i = 0; i < qntdLista1; i++) {
             fprintf(out, "%d", caux->element);
-            if (i < qntdLista2-1) fprintf(out, " ");
+            if (i < qntdLista1-1) fprintf(out, " ");
             caux = caux->next;
         }
     }
