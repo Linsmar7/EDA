@@ -1,0 +1,17 @@
+Avaliação 2 - 2019.2 - Estrutura de Dados e Algoritmos
+Aluno: Linsmar da Silva Vital
+
+q1.cpp = Questão 1
+q2.cpp = Questão 2
+q3.cpp = Questão 3
+
+Como foi compilado os arquivos:
+g++ q1.cpp -o q1 -Wall
+
+Como foi executado (.exe apareceu aqui, mas pode não aparecer dependendo da máquina)
+./q1.exe in.txt out.txt
+
+
+
+
+Compilador usado: Cygwing64
