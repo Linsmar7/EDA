@@ -4,7 +4,7 @@ using namespace std;
 #define MAX(a, b) (a > b)?a:b
 
 struct node {
-    int element, height = 0;
+    int element, height;
     struct node *left = NULL, *right = NULL;
 };
 typedef struct node node_t;
@@ -14,7 +14,7 @@ node_t *newNode (){
     if (p) {
         p->element = -1;
         p->right = p->left = NULL;
-        p->height = -1;
+        p->height = 0;
     }
     return p;
 }
@@ -35,25 +35,27 @@ node_t *insert (int e, node_t *r) {
 
 int avl_height(node_t *x) {
     if (x) return x->height;
-    else return -1;
+    return -1;
 }
 
 node_t *avl_rLeft(node_t *x) {
-    node_t *y = x->right;
+    node_t *y = newNode();
+    y = x->right;
     x->right = y->left;
     y->left = x;
-    x->height = MAX(avl_height(x->left), avl_height(x->right))+1;
-    y->height = MAX(avl_height(y->left), avl_height(y->right))+1;
+    x->height = 1 + (MAX(avl_height(x->left), avl_height(x->right)));
+    y->height = 1 + (MAX(avl_height(y->left), avl_height(y->right)));
 
     return y;
 }
 
 node_t *avl_rRight(node_t *x) {
-    node_t *y = x->left;
-    x->right = y->left;
-    y->left = x;
-    x->height = MAX(avl_height(x->left), avl_height(x->right))+1;
-    y->height = MAX(avl_height(y->left), avl_height(y->right))+1;
+    node_t *y = newNode();
+    y = x->left;
+    x->left = y->right;
+    y->right = x;
+    x->height = 1 + (MAX(avl_height(x->left), avl_height(x->right)));
+    y->height = 1 + (MAX(avl_height(y->left), avl_height(y->right)));
 
     return y;
 }
@@ -62,17 +64,14 @@ node_t *rebalance (node_t *r) {
     int lh = avl_height(r->left);
     int rh = avl_height(r->right);
     int th = lh - rh;
-    r->height = 1+max(lh, rh);
+    r->height = 1 + (MAX(lh, rh));
+
     if (th == 2) {
-        if (r->left) {
-            if (avl_height(r->left->right) > avl_height(r->left->left)) r->left = avl_rLeft(r->left);
-        }
+        if (avl_height(r->left->right) > avl_height(r->left->left)) r->left = avl_rLeft(r->left);
         r = avl_rRight(r);
     }
     else if (th == -2) {
-        if (r->right && r->left) {
-            if (avl_height(r->right->left) > avl_height(r->left->left)) r->right = avl_rRight(r->right);
-        }
+        if (avl_height(r->right->left) > avl_height(r->right->right)) r->right = avl_rRight(r->right);
         r = avl_rLeft(r);
     }
     return r;
@@ -86,7 +85,7 @@ node_t *avl_insert (int e, node_t *r) {
     }
     else if (r->element > e) r->left = avl_insert(e, r->left);
     else if (r->element < e) r->right = avl_insert(e, r->right);
-    return rebalance (r);
+    return rebalance(r);
 }
 
 int main (int argc, char *argv[]) {
@@ -106,11 +105,9 @@ int main (int argc, char *argv[]) {
     //Abertura do arquivo
     in = fopen(argv[1], "r");
     while (fscanf(in, "%d", &aux) == 1) {
-        cout << aux << endl;
         insert(aux, ab);
         avl_insert(aux, avl);
     }
     fclose(in);
-    cout << avl->right->element << endl;
 return 0;
 }
