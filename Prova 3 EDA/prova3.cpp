@@ -135,8 +135,9 @@ int main (int argc, char *argv[]) {
         ab = insert(aux, ab);
         elementosinseridos++;
         media = rotacoes/elementosinseridos;
-        cout << elementosinseridos << " -> " << media << endl;
+        cout << "Elementos inseridos: " << elementosinseridos << " -> Média de rotações: " << media << endl;
     }
     fclose(in);
+    cout << "Elementos inseridos no total: " << elementosinseridos << endl << "Média total de rotações: " << media << endl;
 return 0;
 }
