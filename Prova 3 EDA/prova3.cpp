@@ -7,14 +7,14 @@ float rotacoes = 0; //Variavel global para armazenar a quantidade de rotações
 float soma = 1; //Variavel global para fazer o somatorio de pBST e pAVL, começa com 1 pra contar com a raiz
 
 struct node {
-    int element, height;
+    float element, height;
     struct node *left = NULL, *right = NULL;
 };
 typedef struct node node_t;
 
 
 //Função pra criação de nó
-node_t *newNode (int e){
+node_t *newNode (float e){
     node_t *p = (node_t *)malloc(sizeof(node_t));
     if (p) {
         p->element = e;
@@ -26,7 +26,7 @@ node_t *newNode (int e){
 /*-----------------------*/
 
 //Função de saber a altura de um nó
-int avl_height(node_t *x) {
+float avl_height(node_t *x) {
     if (x) return x->height;
     return -1;
 }
@@ -36,8 +36,8 @@ int avl_height(node_t *x) {
 /* FUNÇÕES DE ÁRVORE DE BUSCA */
 //Função pra altura de árvore de busca
 node_t *height_BST (node_t *r) {
-    int lh = avl_height(r->left);
-    int rh = avl_height(r->right);
+    float lh = avl_height(r->left);
+    float rh = avl_height(r->right);
     r->height = 1 + (MAX(lh, rh));
     return r;
 }
@@ -45,7 +45,7 @@ node_t *height_BST (node_t *r) {
 
 
 //Função de inserir em árvore de busca
-node_t *insert (int e, node_t *r) {
+node_t *insert (float e, node_t *r) {
     if (r) {
         if (e > r->element) r->right = insert(e, r->right);
         else if (e < r->element) r->left = insert(e, r->left);
@@ -93,9 +93,9 @@ node_t *avl_rRight(node_t *x) {
 
 //Função para rebalanceamento
 node_t *rebalance (node_t *r) {
-    int lh = avl_height(r->left);
-    int rh = avl_height(r->right);
-    int th = lh - rh;
+    float lh = avl_height(r->left);
+    float rh = avl_height(r->right);
+    float th = lh - rh;
     r->height = 1 + (MAX(lh, rh));
 
     if (th == 2) {
@@ -114,7 +114,7 @@ node_t *rebalance (node_t *r) {
 
 
 //Função para inserir em árvore AVL
-node_t *avl_insert (int e, node_t *r) {
+node_t *avl_insert (float e, node_t *r) {
     if (r == NULL) {
         r = newNode(e);
         return r;
@@ -142,7 +142,7 @@ void h_i(node_t *r, node_t *absolute){
         soma += 1 + avl_height(absolute) - avl_height(x);
         h_i(x, absolute);
     }
-    if (r->right == NULL && r->left == NULL) return;
+    return;
 }
 /*-----------------------*/
 
@@ -158,13 +158,13 @@ int main (int argc, char *argv[]) {
 
     //Declaração
     FILE *in, *out;
-    int aux;
-    float elementosinseridos;
-    float media;
+    float aux;
+    float elementosinseridos = 0;
+    float media = 0;
     float pAVL = 1;
     float pBST = 1;
-    node_t *avl; //Arvore AVL
-    node_t *ab; //Arvore de Busca
+    node_t *avl = NULL; //Arvore AVL
+    node_t *ab = NULL; //Arvore de Busca
 
     //Abertura do arquivo para a árvore AVL
     in = fopen(argv[1], "r");
@@ -172,7 +172,7 @@ int main (int argc, char *argv[]) {
     out = fopen(argv[2], "w"); //Abertura do arquivo de saída
     if (!(out = fopen(argv[2], "w"))) cout << "O arquivo de saída não pode ser aberto" << endl;
     fprintf(out, "%s\r\n", " /*-----ÁRVORE AVL-----*/ ");
-    while (fscanf(in, "%d", &aux) == 1) {
+    while (fscanf(in, "%f", &aux) == 1) {
         avl = avl_insert(aux, avl);
         elementosinseridos++;
         soma = 1;
@@ -197,7 +197,7 @@ int main (int argc, char *argv[]) {
 
     in = fopen(argv[1], "r");
     if (!(in = fopen(argv[1], "r"))) cout << "O arquivo de entrada para a árvore BST não pode ser aberto" << endl;
-    while (fscanf(in, "%d", &aux) == 1) {
+    while (fscanf(in, "%f", &aux) == 1) {
         ab = insert(aux, ab);
         elementosinseridos++;
         soma = 1;
@@ -210,6 +210,5 @@ int main (int argc, char *argv[]) {
     }
     fclose(in);
     fclose(out);
-
 return 0;
 }
